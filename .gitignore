@@ -9,6 +9,7 @@ frontend/yarn-debug.log*
 frontend/yarn-error.log*
 frontend/.pnpm-debug.log*
 frontend/.DS_Store
+frontend/.deepsource.toml
 
 # Backend (FastAPI)
 backend/__pycache__/
