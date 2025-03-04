@@ -7,14 +7,11 @@ import models
 app = FastAPI(title="API Moyens Logistiques - FastAPI + SQLAlchemy + PostgreSQL")
 
 # Liste des origines autorisées (ajuste selon ton déploiement)
-origins = [
-    "http://192.168.0.26:3000",
-    "http://localhost:3000"
-]
+origins = ["http://localhost:3000"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

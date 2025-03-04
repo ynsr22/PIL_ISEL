@@ -1,3 +1,5 @@
+"use client";
+
 import { FC, memo } from "react";
 import Head from "next/head";
 

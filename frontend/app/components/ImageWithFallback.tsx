@@ -1,3 +1,5 @@
+"use client";
+
 // Composant de placeholder d'image optimisé
 import Image from "next/image";
 import { useState } from "react";

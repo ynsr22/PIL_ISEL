@@ -1,3 +1,5 @@
+"use client";
+
 // Composant skeleton pour le chargement
 
 export const SkeletonCard = () => (

@@ -3,8 +3,8 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-# Exemple: "postgresql://postgres:postgres@localhost:5433/postgres"
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@192.168.0.26:5433/postgres")
+# "db" = nom du service postgresql dans docker-compose.yml
+DATABASE_URL = "postgresql://postgres:postgres@db:5432/postgres"
 
 engine = create_engine(DATABASE_URL, echo=False)
 
