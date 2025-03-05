@@ -1,5 +1,7 @@
 # PROJET_PIL - PIL ISEL
 
+![Aperçu du projet](./PIL14.gif)
+
 ## Description
 Ce projet est développé dans le cadre du projet PIL à l'ISEL. Il vise à créer un outil d'aide à la gestion des moyens logistiques non motorisés des usines Renault.
 
