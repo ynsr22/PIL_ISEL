@@ -28,6 +28,9 @@ Ce projet est développé dans le cadre du projet PIL à l'ISEL. Il vise à cré
     localhost:3000
     ```
 
+## Schéma base de données relationnelles
+![Schema DB](./schema_db.png)
+
 ## Auteur
 - Yanis SRAIRI
 - Amira AOUDIA
