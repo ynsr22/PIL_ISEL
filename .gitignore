@@ -37,3 +37,50 @@ backend/.mypy_cache/
 # Environment files
 .env
 .env.*
+
+# Binaires et exécutables
+/backend
+
+# Dépendances Go
+/pkg/
+/bin/
+/vendor/
+
+# Modules et cache Go
+go.sum
+go.mod
+*.out
+*.exe
+*.test
+*.log
+
+# Cache de l'éditeur (VSCode, JetBrains, etc.)
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker
+docker-compose.override.yml
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+*.log
+logs/
+*.tmp
+
+# Données de base de données locales
+/db/data/
+*.db
+*.sqlite
+
+# Cache des tests
+cover.out
+
+# Ignorer les fichiers spécifiques aux systèmes d'exploitation
+.DS_Store
+Thumbs.db

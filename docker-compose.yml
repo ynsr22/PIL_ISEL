@@ -22,7 +22,7 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/postgres  # Connexion DB
     ports:
-      - "8000:8000"
+      - "8000:8000"  # Bun écoute sur 3000
     depends_on:
       - db
 
@@ -33,7 +33,7 @@ services:
     container_name: react_frontend
     restart: unless-stopped
     environment:
-      NEXT_PUBLIC_API_URL: http://backend:8000  # URL de l'API pour le frontend
+      NEXT_PUBLIC_API_URL: http://backend:8000  # Mise à jour avec le bon port de l'API
     ports:
       - "3000:80"  # Le container Nginx sert sur le port 80, mappé au port 3000 de l'hôte
     depends_on:

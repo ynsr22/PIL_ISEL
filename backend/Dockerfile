@@ -1,52 +1,20 @@
-# -------------------------
-# STAGE 1: Builder
-# -------------------------
-FROM python:3.13.2-alpine AS builder
-
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
-
+# Étape 1 : Build avec Go
+FROM golang:latest AS builder
 WORKDIR /app
 
-# Install build dependencies in single layer
-RUN apk add --no-cache build-base postgresql-dev
+# Précharger les dépendances
+COPY go.mod go.sum ./
+RUN go mod download
 
-COPY requirements.txt .
+# Copier le code source et compiler en binaire statique
+COPY . .
+ENV CGO_ENABLED=0 GOOS=linux
+RUN go build -ldflags="-s -w" -o main .
 
-# Build wheels with optimized flags
-RUN pip wheel --no-cache-dir --wheel-dir /wheels -r requirements.txt
-
-# -------------------------
-# STAGE 2: Final image
-# -------------------------
-FROM python:3.13.2-alpine
-
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1
-
+# Étape 2 : Image finale ultra légère (Distroless)
+FROM gcr.io/distroless/static:nonroot
 WORKDIR /app
-
-# Install runtime deps and create user in single layer
-RUN apk add --no-cache postgresql-libs && \
-    addgroup -S appgroup && \
-    adduser -S appuser -G appgroup
-
-# Install dependencies from wheels
-COPY --from=builder /wheels /wheels
-RUN pip install --no-cache-dir /wheels/* && \
-    rm -rf /wheels
-
-# Copy app code with proper ownership
-COPY --chown=appuser:appgroup . .
-
-# Switch to non-root user
-USER appuser
-
-# Document the port
+COPY --from=builder /app/main .
 EXPOSE 8000
-
-# Use optimized settings for FastAPI
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]
+USER nonroot:nonroot
+CMD ["/app/main"]
