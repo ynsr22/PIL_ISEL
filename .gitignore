@@ -26,6 +26,7 @@ backend/.Python
 backend/.coverage
 backend/.pytest_cache/
 backend/.mypy_cache/
+backend
 
 # IDE specific files
 .idea/
