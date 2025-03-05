@@ -1,7 +1,4 @@
-"use client";
-
 // Composant skeleton pour le chargement
-
 export const SkeletonCard = () => (
   <div className="bg-white rounded-lg shadow border border-gray-200 p-4 flex flex-col h-full">
     <div className="flex-1 flex items-center justify-center mb-4">

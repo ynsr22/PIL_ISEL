@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, memo, useEffect, useState } from "react";
-import { Slider } from "@mui/material";
+import RangeSlider from "./RangeSlider";
 
 // Types
 interface FilterSectionProps {
@@ -40,12 +40,12 @@ interface PriceRange {
 const DEPARTMENTS = ["Tôlerie", "Montage"] as const;
 
 // API Services
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_URL = "http://localhost:8000";
 
 // UI Components
 const FilterSection: React.FC<FilterSectionProps> = memo(
   ({ title, isOpen, onToggle, children }) => (
-    <section className="border-b last:border-b-0">
+    <section className="border-b border-gray-200 last:border-b-0">
       <button
         onClick={onToggle}
         className="w-full flex justify-between items-center py-3 px-4 text-left text-lg font-bold focus:outline-none hover:bg-gray-50 transition-colors"
@@ -65,25 +65,6 @@ const FilterSection: React.FC<FilterSectionProps> = memo(
 
 FilterSection.displayName = "FilterSection";
 
-// Styled MUI Slider
-const sliderStyles = {
-  color: "black",
-  "& .MuiSlider-thumb": {
-    backgroundColor: "black",
-    border: "2px solid white",
-  },
-  "& .MuiSlider-rail": {
-    opacity: 0.5,
-    backgroundColor: "#ccc",
-  },
-  "& .MuiSlider-mark": {
-    color: "black",
-  },
-  "& .MuiSlider-markLabel": {
-    fontSize: "0.75rem",
-  },
-};
-
 // Helper function for selection toggle
 const toggleSelection = <T,>(currentSelections: T[], itemToToggle: T): T[] =>
   currentSelections.includes(itemToToggle)
@@ -100,14 +81,14 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
   setSelectedCategories,
 }) => {
   const [openSections, setOpenSections] = useState<OpenSections>({
-    department: false, // Opening department by default
+    department: false,
     category: false,
     price: false,
   });
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
-  
+
   const [priceRangeData, setPriceRangeData] = useState<PriceRange>({ min: 0, max: 1000 });
   const [priceRangeLoading, setPriceRangeLoading] = useState(true);
 
@@ -117,13 +98,9 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
       setCategoriesLoading(true);
       try {
         const response = await fetch(`${API_URL}/categories`);
-        if (!response.ok) {
-          throw new Error(`Erreur serveur: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`Erreur serveur: ${response.status}`);
         const data = await response.json();
-        if (Array.isArray(data)) {
-          setCategories(data);
-        }
+        if (Array.isArray(data)) setCategories(data);
       } catch (error) {
         console.error("Erreur lors du chargement des catégories:", error);
       } finally {
@@ -140,16 +117,14 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
       setPriceRangeLoading(true);
       try {
         const response = await fetch(`${API_URL}/moyens`);
-        if (!response.ok) {
-          throw new Error(`Erreur serveur: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`Erreur serveur: ${response.status}`);
         const data = await response.json();
-        
+
         if (Array.isArray(data) && data.length > 0) {
           const prices = data.map((item) => parseFloat(item.prix));
           const min = Math.floor(Math.min(...prices));
           const max = Math.ceil(Math.max(...prices));
-          
+
           setPriceRangeData({ min, max });
           setPriceRange([min, max]);
         }
@@ -167,13 +142,6 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
   }, []);
 
-  const handleSliderChange = useCallback(
-    (_: Event, newValue: number | number[]) => {
-      setPriceRange(newValue as [number, number]);
-    },
-    [setPriceRange]
-  );
-
   const handleDepartmentChange = useCallback(
     (department: string) => {
       setSelectedDepartments((prev) => toggleSelection(prev, department));
@@ -189,8 +157,8 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
   );
 
   return (
-    <div className="w-full border rounded-lg shadow-md bg-white overflow-hidden">
-      {/* Filtre par Département */}
+    <div className="w-full border border-gray-200 rounded-lg shadow-md bg-white overflow-hidden">
+      {/* Départements Section */}
       <FilterSection
         title="Départements"
         isOpen={openSections.department}
@@ -198,8 +166,8 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
       >
         <div>
           {DEPARTMENTS.map((dept) => (
-            <label 
-              key={dept} 
+            <label
+              key={dept}
               className="flex items-center gap-2 cursor-pointer py-1 px-1 rounded hover:bg-gray-50 transition-colors"
             >
               <input
@@ -214,7 +182,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
         </div>
       </FilterSection>
 
-      {/* Filtre par Catégorie */}
+      {/* Catégories Section */}
       <FilterSection
         title="Catégories"
         isOpen={openSections.category}
@@ -229,8 +197,8 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
         ) : (
           <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
             {categories.map((category) => (
-              <label 
-                key={category.id} 
+              <label
+                key={category.id}
                 className="flex items-center gap-2 cursor-pointer py-1 px-1 rounded hover:bg-gray-50 transition-colors"
               >
                 <input
@@ -246,7 +214,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
         )}
       </FilterSection>
 
-      {/* Filtre par Prix */}
+      {/* Prix Section */}
       <FilterSection
         title="Prix"
         isOpen={openSections.price}
@@ -262,32 +230,12 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
           </div>
         ) : (
           <>
-            <Slider
-              value={priceRange}
-              onChange={handleSliderChange}
-              valueLabelDisplay="auto"
+            <RangeSlider
               min={priceRangeData.min}
               max={priceRangeData.max}
-              step={10}
-              marks={[
-                { value: priceRangeData.min, label: `${priceRangeData.min}€` },
-                {
-                  value: Math.round((priceRangeData.min + priceRangeData.max) / 2),
-                  label: `${Math.round((priceRangeData.min + priceRangeData.max) / 2)}€`,
-                },
-                { value: priceRangeData.max, label: `${priceRangeData.max}€` },
-              ]}
-              sx={sliderStyles}
+              value={priceRange}
+              onChange={setPriceRange}
             />
-            <div className="flex justify-between items-center text-sm mt-4">
-              <span className="px-3 py-1 bg-gray-100 rounded-full font-medium">
-                {priceRange[0]}€
-              </span>
-              <span className="font-medium text-gray-400">—</span>
-              <span className="px-3 py-1 bg-gray-100 rounded-full font-medium">
-                {priceRange[1]}€
-              </span>
-            </div>
           </>
         )}
       </FilterSection>

@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:17-alpine  # Version légère et performante de PostgreSQL
+    image: postgres:17-alpine  # Version légère de PostgreSQL
     container_name: postgres_db
     restart: unless-stopped
     environment:
@@ -11,7 +11,7 @@ services:
       - "5432:5432"
     volumes:
       - dbdata:/var/lib/postgresql/data  # Volume persistant
-      - ./db/dump.sql:/docker-entrypoint-initdb.d/dump.sql  # Exécute le dump seulement au premier build
+      - ./db/dump.sql:/docker-entrypoint-initdb.d/dump.sql  # Exécution du dump au premier build
 
   backend:
     build:
@@ -24,20 +24,20 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - db  # Démarre après PostgreSQL
+      - db
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: nextjs_frontend
+    container_name: react_frontend
     restart: unless-stopped
     environment:
       NEXT_PUBLIC_API_URL: http://backend:8000  # URL de l'API pour le frontend
     ports:
-      - "3000:3000"
+      - "3000:80"  # Le container Nginx sert sur le port 80, mappé au port 3000 de l'hôte
     depends_on:
-      - backend  # Démarre après le backend
+      - backend
 
 volumes:
-  dbdata:  # Volume persistant pour PostgreSQL
+  dbdata:

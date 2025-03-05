@@ -1,20 +1,31 @@
-"use client";
-
 import { useState, useEffect, useMemo, useContext, Suspense } from "react";
-import { SearchContext } from "./components/search";
-import MemoizedFilterComponent from "./components/filtre";
-import { SkeletonCard } from "./components/SkeletonCard";
-import { ProductCard } from "./components/ProductCard";
+import { RechercheContext } from "../components/sub-components/Recherche";
+import { SkeletonCard } from "../components/sub-components/SqueletteCarte";
+import { ProductCard } from "../components/sub-components/CarteProduit";
+import MemoizedFilterComponent from "../components/sub-components/Filtre";
 
 export default function Catalogue() {
-  const [items, setItems] = useState([]);
+  interface Item {
+    id: number;
+    nom: string;
+    categorie: string;
+    roues: string;
+    emplacement: string;
+    type_base: string;
+    taille: string;
+    departement: string;
+    prix: number;
+    image: string;
+  }
+
+  const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const searchContext = useContext(SearchContext);
+  const [error, setError] = useState<string | null>(null);
+  const rechercheContext = useContext(RechercheContext);
 
   // Etats pour les filtres
-  const [selectedDepartments, setSelectedDepartments] = useState([]);
-  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0,1000]);
   const [initialPriceRange, setInitialPriceRange] = useState<[number, number]>([0,1000]);
 
@@ -35,7 +46,7 @@ export default function Catalogue() {
     selectedDepartments.length > 0 ||
     selectedCategories.length > 0 ||
     sortOption !== "name-asc" ||
-    searchContext.searchQuery;
+    rechercheContext?.setRecherche;
 
     // Fonction pour réinitialiser les filtres
     const handleResetFilters = () => {
@@ -45,8 +56,8 @@ export default function Catalogue() {
       setSortOption("name-asc");
       window.scrollTo({ top: 0, behavior: "smooth" });
 
-      if (searchContext) {
-        searchContext.setSearchQuery("");
+      if (rechercheContext) {
+        rechercheContext.setRecherche("");
       }
     }
 
@@ -59,7 +70,7 @@ export default function Catalogue() {
         setLoading(true);
         setError(null);
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/moyens`, { signal });
+        const response = await fetch("http://localhost:8000/moyens", { signal });
 
         if (!response.ok) {
           throw new Error(`Erreur serveur: ${response.status}`);
@@ -72,14 +83,14 @@ export default function Catalogue() {
 
         // Normalisation des données
         const normalizedData = data.map((item: Record<string, unknown>) => ({
-          id: item.id,
-          nom: item.nom,
-          categorie: item.categorie_id,
-          roues: item.roue,
-          emplacement: item.emplacement,
-          type_base: item.type_base,
-          taille: item.taille,
-          departement: item.departement,
+          id: item.id ? parseInt(String(item.id), 10) : 0,
+          nom: item.nom as string,
+          categorie: item.categorie_id as string,
+          roues: item.roue as string,
+          emplacement: item.emplacement as string,
+          type_base: item.type_base as string,
+          taille: item.taille as string,
+          departement: item.departement as string,
           prix: item.prix ? parseFloat(String(item.prix)) : 0,
           image: item.image ? `/bases/${item.image}` : "/bases/default.png",
         }));
@@ -89,7 +100,7 @@ export default function Catalogue() {
         setInitialPriceRange(getPriceRange(normalizedData));
 
       } catch (err) {
-        if (err.name !== "AbortError") {
+        if (err instanceof Error && err.name !== "AbortError") {
           console.error("Erreur API:", err);
           setError("Impossible de charger les moyens roulants.");
         }
@@ -105,7 +116,7 @@ export default function Catalogue() {
   const filteredAndSortedItems = useMemo(() => {
     const filtered = items.filter((item: {nom?: string; prix?: number; categorie?: string; departement?:string }) => {
       // Filtre par recherche
-      if (searchContext?.searchQuery && !item.nom?.toLowerCase().includes(searchContext.searchQuery.toLowerCase())) {
+      if (rechercheContext?.recherche && !item.nom?.toLowerCase().includes(rechercheContext.recherche.toLowerCase())) {
         return false;
       }
 
@@ -117,9 +128,9 @@ export default function Catalogue() {
         return false;
       }
       
-      if (selectedCategories.length > 0 && (!item.categorie || !selectedCategories.includes(item.categorie))) {
+      if (selectedCategories.length > 0 && (!item.categorie || !selectedCategories.includes(Number(item.categorie)))) {
         return false;
-      }
+      }      
 
       return true;
     });
@@ -138,7 +149,7 @@ export default function Catalogue() {
           return 0;
       }
     });
-  }, [items, searchContext?.searchQuery, priceRange, selectedDepartments, selectedCategories, sortOption]);
+  }, [items, rechercheContext?.recherche, priceRange, selectedDepartments, selectedCategories, sortOption]);
 
   return (
     <main className="min-h-screen">
@@ -153,9 +164,8 @@ export default function Catalogue() {
                   setPriceRange={setPriceRange}
                   selectedDepartments={selectedDepartments}
                   setSelectedDepartments={setSelectedDepartments}
-                  selectedCategories={selectedCategories}
-                  setSelectedCategories={setSelectedCategories}
-                />
+                  selectedCategories={selectedCategories.map(Number)}
+                  setSelectedCategories={setSelectedCategories} />
               </Suspense>
 
               {/*Sélecteur de tri */}

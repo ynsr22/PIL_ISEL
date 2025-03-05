@@ -1,7 +1,5 @@
-"use client";
-
-import Link from "next/link";
-import { ImageWithFallback } from "./ImageWithFallback";
+import { Link } from 'react-router-dom';
+import { ImageWithFallback } from './ImageWithFallback';
 
 interface ProductCardProps {
   id: number;
@@ -14,9 +12,8 @@ interface ProductCardProps {
 // Composant pour les cartes de produits
 export const ProductCard = ({ item }: { item: ProductCardProps }) => (
   <Link
-    href={`/produit/${item.id}`}
-    prefetch={true}
-    className="group bg-white rounded-lg shadow border border-gray-200 p-4 flex flex-col hover:shadow-lg transition-all duration-200 hover:border-yellow-200 h-full"
+    to={`/produit/${item.id}`}
+    className="group bg-white rounded-lg shadow border border-gray-200 p-4 flex flex-col hover:shadow-lg transition-all duration-200 hover:border-yellow-400 h-full"
   >
     <div className="flex-1 flex items-center justify-center mb-4">
       <ImageWithFallback
