@@ -2,7 +2,6 @@ package database
 
 import (
     "fmt"
-
     "gorm.io/driver/postgres"
     "gorm.io/gorm"
 )
@@ -17,14 +16,4 @@ func ConnectDB() {
     if err != nil {
         panic(fmt.Sprintf("Erreur de connexion à la base de données : %v", err))
     }
-
-    // Optionnel : Auto-migration si souhaité
-    // Attention aux conflits si la table existe déjà
-    // _ = DB.AutoMigrate(
-    //     &models.Categorie{},
-    //     &models.MoyenRoulant{},
-    //     &models.Accessoire{},
-    //     &models.Compatibilite{},
-    //     &models.AccessoireDefaut{},
-    // )
 }

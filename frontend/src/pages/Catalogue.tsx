@@ -199,7 +199,7 @@ export default function Catalogue() {
               {/* Bouton pour réinitialiser les filtres */}
               {hasFilters && (
                 <button
-                  className="w-full mt-4 px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded flex items-center justify-center"
+                  className="w-full mt-4 px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded flex items-center cursor-pointer justify-center"
                   aria-label="Réinitialiser tous les filtres"
                   onClick={handleResetFilters}
                   >
@@ -237,7 +237,7 @@ export default function Catalogue() {
                 ))}
               </div>
             ) : filteredAndSortedItems.length === 0 ? (
-              <div className="bg-white rounded-lg p-8 text-center border bordeer-gray-200 shadow-sm">
+              <div className="bg-white rounded-lg p-8 text-center border border-gray-200 shadow-sm">
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
                   Aucun produit trouvé.
                 </h3>

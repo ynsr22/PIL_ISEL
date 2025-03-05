@@ -48,7 +48,7 @@ const FilterSection: React.FC<FilterSectionProps> = memo(
     <section className="border-b border-gray-200 last:border-b-0">
       <button
         onClick={onToggle}
-        className="w-full flex justify-between items-center py-3 px-4 text-left text-lg font-bold focus:outline-none hover:bg-gray-50 transition-colors"
+        className="w-full flex justify-between items-center py-3 px-4 text-left text-lg font-bold focus:outline-none cursor-pointer hover:bg-gray-50 transition-colors"
         aria-expanded={isOpen}
       >
         {title}

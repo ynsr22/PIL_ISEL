@@ -91,6 +91,9 @@ const PageProduit = () => {
   const [selectedAccessoires, setSelectedAccessoires] = useState<number[]>([]);
   const [quantite, setQuantite] = useState<number>(QUANTITE_MIN);
 
+  // État pour gérer la notification
+  const [notification, setNotification] = useState<string>("");
+
   const {
     data: produit,
     loading: loadingProduit,
@@ -129,7 +132,7 @@ const PageProduit = () => {
   }, []);
 
   const toggleAccessoire = useCallback((accessoireId: number) => {
-    setSelectedAccessoires((prev) => 
+    setSelectedAccessoires((prev) =>
       prev.includes(accessoireId) ? prev.filter(id => id !== accessoireId) : [...prev, accessoireId]
     );
   }, []);
@@ -147,14 +150,17 @@ const PageProduit = () => {
   }, [quantite, accessoiresParDefaut, selectedAccessoiresOptionnels, produit?.prix]);
 
   const handleAjoutPanier = useCallback(() => {
+    if (!produit) return;
+    
     const itemPanier = {
-      produit: produit?.nom,
-      imageProduit: produit?.image,
+      produit: produit.nom,
+      imageProduit: produit.image,
       quantite,
       accessoires: selectedAccessoiresOptionnels,
       accessoiresParDefaut,
       totalPrice,
     };
+
     let panierExistant = [];
     try {
       panierExistant = JSON.parse(localStorage.getItem("panier") || "[]");
@@ -163,8 +169,23 @@ const PageProduit = () => {
       console.error("Erreur lors de la récupération du panier:", error);
       panierExistant = [];
     }
+
     localStorage.setItem("panier", JSON.stringify([...panierExistant, itemPanier]));
-  }, [produit, quantite, selectedAccessoiresOptionnels, accessoiresParDefaut, totalPrice]);
+
+    // Définition du message de notification
+    setNotification("Produit ajouté au panier avec succès !");
+
+    // Masquage automatique de la notification au bout de 3 secondes
+    setTimeout(() => {
+      setNotification("");
+    }, 3000);
+  }, [
+    produit,
+    quantite,
+    selectedAccessoiresOptionnels,
+    accessoiresParDefaut,
+    totalPrice
+  ]);
 
   if (!produit) {
     return <div className="text-red-500">Produit introuvable</div>;
@@ -172,7 +193,17 @@ const PageProduit = () => {
 
   return (
     <div className="container mx-auto p-4 max-w-4xl">
-      <h1 className="text-xl font-bold mb-4 text-gray-800">{produit?.nom ?? "Produit introuvable"}</h1>
+
+      {/* Notification simple en position fixe */}
+      {notification && (
+        <div className="fixed top-4 right-4 bg-green-100 text-green-800 px-4 py-2 rounded shadow">
+          {notification}
+        </div>
+      )}
+
+      <h1 className="text-xl font-bold mb-4 text-gray-800">
+        {produit?.nom ?? "Produit introuvable"}
+      </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div>
@@ -242,9 +273,14 @@ const PageProduit = () => {
             pagination={{ clickable: true }}
             className="accessories-swiper"
           >
-            {accessoiresParDefaut && accessoiresParDefaut.map((accessoire) => (
+            {accessoiresParDefaut?.map((accessoire) => (
               <SwiperSlide key={accessoire.id}>
-                <CarteAccessoire accessoire={accessoire} isSelected={false} isSelectable={false} onClick={() => {}} /> 
+                <CarteAccessoire
+                  accessoire={accessoire}
+                  isSelected={false}
+                  isSelectable={false}
+                  onClick={() => {}}
+                />
               </SwiperSlide>
             ))}
           </Swiper>
@@ -261,19 +297,16 @@ const PageProduit = () => {
           <p>Aucun accessoire optionnel.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {accessoiresOptionnels && 
-              accessoiresOptionnels.map((accessoire) => (
-                <div key={accessoire.id} className="relative">
-                  <CarteAccessoire
-                    key={accessoire.id}
-                    accessoire={accessoire}
-                    isSelected={selectedAccessoires.includes(accessoire.id)}
-                    isSelectable
-                    onClick={() => toggleAccessoire(accessoire.id)}
-                  />
-                </div>
-              ))
-            }
+            {accessoiresOptionnels?.map((accessoire) => (
+              <div key={accessoire.id} className="relative">
+                <CarteAccessoire
+                  accessoire={accessoire}
+                  isSelected={selectedAccessoires.includes(accessoire.id)}
+                  isSelectable
+                  onClick={() => toggleAccessoire(accessoire.id)}
+                />
+              </div>
+            ))}
           </div>
         )}
       </div>

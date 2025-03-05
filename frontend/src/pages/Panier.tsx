@@ -195,7 +195,7 @@ const Panier = () => {
                   />
                   <button
                     onClick={() => retirerItem(index)}
-                    className="text-red-500 hover:text-red-700 transition-colors text-sm"
+                    className="text-red-500 hover:text-red-700 cursor-pointer transition-colors text-sm"
                   >
                     Supprimer
                   </button>
