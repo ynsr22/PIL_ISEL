@@ -45,8 +45,6 @@ backend
 /vendor/
 
 # Modules et cache Go
-go.sum
-go.mod
 *.out
 *.exe
 *.test
