@@ -13,7 +13,7 @@ Ce projet est développé dans le cadre du projet PIL à l'ISEL. Il vise à cré
     ```
 2. Accédez au répertoire du projet :
     ```bash
-    cd votre-repo
+    cd PIL_ISEL
     ```
 3. Installez les dépendances :
     ```bash
