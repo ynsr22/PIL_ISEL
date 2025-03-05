@@ -38,9 +38,6 @@ backend/.mypy_cache/
 .env
 .env.*
 
-# Binaires et exécutables
-/backend
-
 # Dépendances Go
 /pkg/
 /bin/
