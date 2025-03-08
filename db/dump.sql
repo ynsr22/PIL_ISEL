@@ -32,7 +32,7 @@ CREATE TABLE public.accessoire_defaut (
 );
 
 
-ALTER TABLE public.accessoire_defaut OWNER TO postgres;
+ALTER TABLE public.accessoire_defaut OWNER TO yanis;
 
 --
 -- Name: accessoire_defaut_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -47,7 +47,7 @@ CREATE SEQUENCE public.accessoire_defaut_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.accessoire_defaut_id_seq OWNER TO postgres;
+ALTER SEQUENCE public.accessoire_defaut_id_seq OWNER TO yanis;
 
 --
 -- Name: accessoire_defaut_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -66,7 +66,7 @@ CREATE TABLE public.categories (
 );
 
 
-ALTER TABLE public.categories OWNER TO postgres;
+ALTER TABLE public.categories OWNER TO yanis;
 
 --
 -- Name: categories_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -81,7 +81,7 @@ CREATE SEQUENCE public.categories_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.categories_id_seq OWNER TO postgres;
+ALTER SEQUENCE public.categories_id_seq OWNER TO yanis;
 
 --
 -- Name: categories_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -101,7 +101,7 @@ CREATE TABLE public.compatibilites (
 );
 
 
-ALTER TABLE public.compatibilites OWNER TO postgres;
+ALTER TABLE public.compatibilites OWNER TO yanis;
 
 --
 -- Name: compatibilites_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -116,7 +116,7 @@ CREATE SEQUENCE public.compatibilites_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.compatibilites_id_seq OWNER TO postgres;
+ALTER SEQUENCE public.compatibilites_id_seq OWNER TO yanis;
 
 --
 -- Name: compatibilites_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -137,7 +137,7 @@ CREATE TABLE public.liste_accessoire (
 );
 
 
-ALTER TABLE public.liste_accessoire OWNER TO postgres;
+ALTER TABLE public.liste_accessoire OWNER TO yanis;
 
 --
 -- Name: liste_accessoire_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -152,7 +152,7 @@ CREATE SEQUENCE public.liste_accessoire_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.liste_accessoire_id_seq OWNER TO postgres;
+ALTER SEQUENCE public.liste_accessoire_id_seq OWNER TO yanis;
 
 --
 -- Name: liste_accessoire_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -179,7 +179,7 @@ CREATE TABLE public.moyens_roulants (
 );
 
 
-ALTER TABLE public.moyens_roulants OWNER TO postgres;
+ALTER TABLE public.moyens_roulants OWNER TO yanis;
 
 --
 -- Name: moyens_roulants_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -194,7 +194,7 @@ CREATE SEQUENCE public.moyens_roulants_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.moyens_roulants_id_seq OWNER TO postgres;
+ALTER SEQUENCE public.moyens_roulants_id_seq OWNER TO yanis;
 
 --
 -- Name: moyens_roulants_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres

@@ -3,12 +3,10 @@ services:
     image: postgres:17-alpine  # Version légère de PostgreSQL
     container_name: postgres_db
     restart: unless-stopped
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
+    env_file:
+      - .env
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - dbdata:/var/lib/postgresql/data  # Volume persistant
       - ./db/dump.sql:/docker-entrypoint-initdb.d/dump.sql  # Exécution du dump au premier build
@@ -19,8 +17,8 @@ services:
       dockerfile: Dockerfile
     container_name: api_backend
     restart: unless-stopped
-    environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/postgres  
+    env_file:
+      - .env
     ports:
       - "8000:8000" 
     depends_on:
@@ -32,8 +30,8 @@ services:
       dockerfile: Dockerfile
     container_name: react_frontend
     restart: unless-stopped
-    environment:
-      NEXT_PUBLIC_API_URL: http://backend:8000  # Mise à jour avec le bon port de l'API
+    env_file:
+      - .env
     ports:
       - "3000:80"  # Le container Nginx sert sur le port 80, mappé au port 3000 de l'hôte
     depends_on:

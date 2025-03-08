@@ -2,6 +2,9 @@ package database
 
 import (
     "fmt"
+    "log"
+    "os"
+
     "gorm.io/driver/postgres"
     "gorm.io/gorm"
 )
@@ -9,11 +12,23 @@ import (
 var DB *gorm.DB
 
 func ConnectDB() {
-    dsn := "host=db user=postgres password=postgres dbname=postgres port=5432 sslmode=disable"
-    var err error
+    LoadEnv() // Charge `.env` en Dev, mais ne fait rien en Prod (variables système)
 
+    dsn := fmt.Sprintf(
+        "host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
+        os.Getenv("DB_HOST"),
+        os.Getenv("POSTGRES_USER"),
+        os.Getenv("POSTGRES_PASSWORD"),
+        os.Getenv("POSTGRES_DB"),
+        os.Getenv("DB_PORT"),
+        os.Getenv("DB_SSLMODE"),
+    )
+
+    var err error
     DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
     if err != nil {
-        panic(fmt.Sprintf("Erreur de connexion à la base de données : %v", err))
+        log.Fatalf("❌ Erreur de connexion à la base de données : %v", err)
     }
+
+    log.Println("✅ Connexion réussie à la base de données !")
 }
