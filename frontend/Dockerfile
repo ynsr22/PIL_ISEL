@@ -6,6 +6,11 @@
     # Définir le répertoire de travail
     WORKDIR /app
     
+    # Récupérer l'argument VITE_API_URL passé depuis Docker Compose
+    ARG VITE_API_URL
+    # Définir l'environnement pour Vite (au build)
+    ENV VITE_API_URL=$VITE_API_URL
+
     # Copier uniquement les fichiers de dépendances pour optimiser le cache
     COPY package.json package-lock.json ./
     
@@ -17,6 +22,7 @@
     
     # Build de l'application (script "build" doit générer un dossier "dist")
     ENV NODE_ENV=production
+    RUN echo "VITE_API_URL=$VITE_API_URL" > .env
     RUN npm run build
     
     # -------------------------

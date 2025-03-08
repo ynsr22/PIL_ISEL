@@ -10,12 +10,11 @@ services:
     volumes:
       - dbdata:/var/lib/postgresql/data
       - ./db/dump.sql:/docker-entrypoint-initdb.d/dump.sql
-      - ./db/healthcheck.sh:/healthcheck.sh 
     healthcheck:
-      test: ["CMD", "sh", "/healthcheck.sh"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+      test: ["CMD", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   backend:
     build:
@@ -35,12 +34,14 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=${VITE_API_URL}
     container_name: react_frontend
     restart: unless-stopped
     env_file:
       - .env
     ports:
-      - "3000:80"  # Le container Nginx sert sur le port 80, mappé au port 3000 de l'hôte
+      - "3000:80" 
     depends_on:
       - backend
 
