@@ -40,7 +40,7 @@ interface PriceRange {
 const DEPARTMENTS = ["Tôlerie", "Montage"] as const;
 
 // API Services
-const API_URL = "http://localhost:8000";
+const API_URL = import.meta.env.VITE_API_URL;
 
 // UI Components
 const FilterSection: React.FC<FilterSectionProps> = memo(

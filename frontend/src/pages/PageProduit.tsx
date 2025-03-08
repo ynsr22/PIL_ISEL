@@ -94,12 +94,14 @@ const PageProduit = () => {
   // État pour gérer la notification
   const [notification, setNotification] = useState<string>("");
 
+  const API_URL = import.meta.env.VITE_API_URL
+
   const {
     data: produit,
     loading: loadingProduit,
     error: errorProduit,
   } = useFetch<Produit>(
-    id ? `http://localhost:8000/moyens/${id}` : null,
+    id ? `${API_URL}/moyens/${id}` : null,
     transformProduit as (data: unknown) => Produit
   );
 
@@ -110,7 +112,7 @@ const PageProduit = () => {
     loading: loadingAccessoiresOptionnels,
     error: errorAccessoiresOptionnels,
   } = useFetch<Accessoires[]>(
-    categoryId ? `http://localhost:8000/categories/${categoryId}/accessoires` : null,
+    categoryId ? `${API_URL}/categories/${categoryId}/accessoires` : null,
     transformAccessoires as (data: unknown) => Accessoires[]
   );
 
@@ -119,7 +121,7 @@ const PageProduit = () => {
     loading: loadingAccessoiresParDefaut,
     error: errorAccessoiresParDefaut,
   } = useFetch<Accessoires[]>(
-    categoryId ? `http://localhost:8000/categories/${categoryId}/accessoires_defauts` : null,
+    categoryId ? `${API_URL}/categories/${categoryId}/accessoires_defauts` : null,
     transformAccessoires as (data: unknown) => Accessoires[]
   );
 

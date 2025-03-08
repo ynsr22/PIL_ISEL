@@ -61,6 +61,8 @@ export default function Catalogue() {
       }
     }
 
+    const API_URL = import.meta.env.VITE_API_URL
+
   useEffect(() => {
     const controller = new AbortController();
     const { signal } = controller;
@@ -70,7 +72,7 @@ export default function Catalogue() {
         setLoading(true);
         setError(null);
 
-        const response = await fetch("http://localhost:8000/moyens", { signal });
+        const response = await fetch(`${API_URL}/moyens`, { signal });
 
         if (!response.ok) {
           throw new Error(`Erreur serveur: ${response.status}`);
