@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:17-alpine  # Version légère de PostgreSQL
+    image: postgres:17-alpine
     container_name: postgres_db
     restart: unless-stopped
     env_file:
@@ -8,8 +8,14 @@ services:
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
-      - dbdata:/var/lib/postgresql/data  # Volume persistant
-      - ./db/dump.sql:/docker-entrypoint-initdb.d/dump.sql  # Exécution du dump au premier build
+      - dbdata:/var/lib/postgresql/data
+      - ./db/dump.sql:/docker-entrypoint-initdb.d/dump.sql
+      - ./db/healthcheck.sh:/healthcheck.sh 
+    healthcheck:
+      test: ["CMD", "sh", "/healthcheck.sh"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   backend:
     build:
@@ -22,7 +28,8 @@ services:
     ports:
       - "8000:8000" 
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   frontend:
     build:
