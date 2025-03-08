@@ -36,7 +36,6 @@ backend/.mypy_cache/
 
 # Environment files
 .env
-.env.*
 
 # Dépendances Go
 /pkg/
@@ -79,3 +78,4 @@ cover.out
 # Ignorer les fichiers spécifiques aux systèmes d'exploitation
 .DS_Store
 Thumbs.db
+docker-compose.dev.yml
