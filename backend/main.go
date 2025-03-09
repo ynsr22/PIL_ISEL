@@ -11,5 +11,5 @@ func main() {
 
     // Configuration du routeur et démarrage du serveur
     r := routes.SetupRouter()
-    r.Run(":8000")
+    r.Run("0.0.0.0:8000")
 }
