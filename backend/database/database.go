@@ -1,34 +1,51 @@
 package database
 
 import (
+    "context"
     "fmt"
     "log"
     "os"
 
-    "gorm.io/driver/postgres"
-    "gorm.io/gorm"
+    "github.com/jackc/pgx/v5/pgxpool"
 )
 
-var DB *gorm.DB
+// DB représente le pool de connexions PostgreSQL
+var DB *pgxpool.Pool
 
-func ConnectDB() {
-    LoadEnv() // Charge `.env` en Dev, mais ne fait rien en Prod (variables système)
+// ConnectDB initialise un pool de connexions
+func ConnectDB() error {
+    LoadEnv() // Charge `.env` en Dev, ne fait rien en Prod
 
     dsn := fmt.Sprintf(
-        "host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
-        os.Getenv("DB_HOST"),
+        "postgres://%s:%s@%s:%s/%s?sslmode=%s",
         os.Getenv("POSTGRES_USER"),
         os.Getenv("POSTGRES_PASSWORD"),
-        os.Getenv("POSTGRES_DB"),
+        os.Getenv("DB_HOST"),
         os.Getenv("DB_PORT"),
+        os.Getenv("POSTGRES_DB"),
         os.Getenv("DB_SSLMODE"),
     )
 
-    var err error
-    DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+    // Création du pool de connexions
+    pool, err := pgxpool.New(context.Background(), dsn)
     if err != nil {
-        log.Fatalf("❌ Erreur de connexion à la base de données : %v", err)
+        return fmt.Errorf("❌ Erreur de connexion à PostgreSQL : %w", err)
     }
 
-    log.Println("✅ Connexion réussie à la base de données !")
+    // Vérification de la connexion
+    if err := pool.Ping(context.Background()); err != nil {
+        return fmt.Errorf("❌ Impossible de se connecter à PostgreSQL : %w", err)
+    }
+
+    DB = pool
+    log.Println("✅ Connexion réussie à PostgreSQL (pgxpool) !")
+    return nil
+}
+
+// CloseDB ferme le pool de connexions PostgreSQL
+func CloseDB() {
+    if DB != nil {
+        DB.Close()
+        log.Println("✅ Connexion PostgreSQL fermée.")
+    }
 }
