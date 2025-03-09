@@ -34,6 +34,7 @@ backend/.mypy_cache/
 
 # Environment files
 /.env
+frontend/.env
 
 # Dépendances Go
 /pkg/
