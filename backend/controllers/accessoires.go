@@ -1,80 +1,160 @@
 package controllers
 
 import (
-    "net/http"
-
-    "github.com/gin-gonic/gin"
-
-    "backend/database"
-    "backend/models"
+	"context"
+	"encoding/json"
+	"net/http"
+	"strconv"
+	"strings"
+	"backend/database"
+	"backend/models"
 )
 
-func GetAccessoires(c *gin.Context) {
-    var accessoires []models.Accessoire
+// GetAccessoires récupère et renvoie la liste des accessoires.
+func GetAccessoires(w http.ResponseWriter, r *http.Request) {
+	query := "SELECT id, nom  FROM liste_accessoire"
+	rows, err := database.DB.Query(r.Context(), query)
+	if err != nil {
+		http.Error(w, "Erreur lors de la récupération des accessoires", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
 
-    if err := database.DB.Find(&accessoires).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{
-            "error": "Erreur lors de la récupération des accessoires",
-        })
-        return
-    }
+	var accessoires []models.Accessoire
+	for rows.Next() {
+		var a models.Accessoire
+		if err := rows.Scan(&a.ID, &a.Nom); err != nil {
+			http.Error(w, "Erreur lors du scan des données", http.StatusInternalServerError)
+			return
+		}
+		accessoires = append(accessoires, a)
+	}
 
-    c.JSON(http.StatusOK, accessoires)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(accessoires)
 }
 
-func GetAccessoire(c *gin.Context) {
-    var accessoire models.Accessoire
-    id := c.Param("accessoire_id")
+// GetAccessoire récupère un accessoire en fonction de son ID.
+func GetAccessoire(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(r.URL.Path, "/")
+	if len(parts) < 3 {
+		http.Error(w, "ID manquant", http.StatusBadRequest)
+		return
+	}
 
-    if err := database.DB.First(&accessoire, id).Error; err != nil {
-        c.JSON(http.StatusNotFound, gin.H{
-            "error": "Accessoire non trouvé",
-        })
-        return
-    }
+	id, err := strconv.Atoi(parts[2])
+	if err != nil {
+		http.Error(w, "ID invalide", http.StatusBadRequest)
+		return
+	}
 
-    c.JSON(http.StatusOK, accessoire)
+	var accessoire models.Accessoire
+	query := "SELECT id, nom  FROM liste_accessoire WHERE id = $1"
+	err = database.DB.QueryRow(r.Context(), query, id).Scan(&accessoire.ID, &accessoire.Nom)
+
+	if err != nil {
+		http.Error(w, "Accessoire non trouvé", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(accessoire)
 }
 
-func GetAccessoiresDefauts(c *gin.Context) {
-    var (
-        accessoiresDefauts []models.AccessoireDefaut
-        accessoires        []models.Accessoire
-    )
-    categorieID := c.Param("categorie_id")
+// GetAccessoiresDefauts récupère les accessoires par défaut d'une catégorie.
+func GetAccessoiresDefauts(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(r.URL.Path, "/")
+	if len(parts) < 3 {
+		http.Error(w, "ID de catégorie manquant", http.StatusBadRequest)
+		return
+	}
 
-    // On récupère d'abord les enregistrements de la table accessoire_defauts
-    database.DB.Where("categorie_id = ?", categorieID).Find(&accessoiresDefauts)
+	categorieID, err := strconv.Atoi(parts[2])
+	if err != nil {
+		http.Error(w, "ID de catégorie invalide", http.StatusBadRequest)
+		return
+	}
 
-    var accessoireIDs []uint
-    for _, a := range accessoiresDefauts {
-        accessoireIDs = append(accessoireIDs, a.AccessoireID)
-    }
+	query := "SELECT la.id, la.nom, la.image, la.prix FROM liste_accessoire la JOIN accessoire_defaut ad ON la.id = ad.accessoire_id WHERE ad.categorie_id = $1"
+	rows, err := database.DB.Query(r.Context(), query, categorieID)
+	if err != nil {
+		http.Error(w, "Erreur lors de la récupération des accessoires par défaut", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+	
+	var accessoires []models.Accessoire
+	for rows.Next() {
+		var a models.Accessoire
+		if err := rows.Scan(&a.ID, &a.Nom, &a.Image, &a.Prix); err != nil {
+			http.Error(w, "Erreur lors du scan des données", http.StatusInternalServerError)
+			return
+		}
+		accessoires = append(accessoires, a)
+	}
 
-    // Puis on récupère les accessoires concernés
-    database.DB.Where("id IN ?", accessoireIDs).Find(&accessoires)
-
-    c.JSON(http.StatusOK, accessoires)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(accessoires)
 }
 
-func GetAccessoiresForCategorie(c *gin.Context) {
-    var (
-        compatibilites []models.Compatibilite
-        accessoires    []models.Accessoire
-    )
-    categorieID := c.Param("categorie_id")
+// GetAccessoiresForCategorie récupère les accessoires compatibles pour une catégorie.
+func GetAccessoiresForCategorie(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(r.URL.Path, "/")
+	if len(parts) < 3 {
+		http.Error(w, "ID de catégorie manquant", http.StatusBadRequest)
+		return
+	}
 
-    // Récupération des compatibilités de la catégorie
-    database.DB.Where("categorie_id = ?", categorieID).Find(&compatibilites)
+	categorieID, err := strconv.Atoi(parts[2])
+	if err != nil {
+		http.Error(w, "ID de catégorie invalide", http.StatusBadRequest)
+		return
+	}
 
-    // Extraction des IDs d'accessoires
-    var accessoireIDs []uint
-    for _, comp := range compatibilites {
-        accessoireIDs = append(accessoireIDs, comp.AccessoireID)
-    }
+	// Récupérer les IDs des accessoires compatibles
+	query := "SELECT accessoire_id FROM compatibilites WHERE categorie_id = $1"
+	rows, err := database.DB.Query(r.Context(), query, categorieID)
+	if err != nil {
+		http.Error(w, "Erreur lors de la récupération des compatibilités", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
 
-    // Récupération des accessoires correspondants
-    database.DB.Where("id IN ?", accessoireIDs).Find(&accessoires)
+	var accessoireIDs []int
+	for rows.Next() {
+		var accessoireID int
+		if err := rows.Scan(&accessoireID); err != nil {
+			http.Error(w, "Erreur lors du scan des données", http.StatusInternalServerError)
+			return
+		}
+		accessoireIDs = append(accessoireIDs, accessoireID)
+	}
 
-    c.JSON(http.StatusOK, accessoires)
+	if len(accessoireIDs) == 0 {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode([]models.Accessoire{})
+		return
+	}
+
+	// Récupérer les accessoires correspondants
+	query = "SELECT id, nom, image, prix FROM liste_accessoire WHERE id = ANY($1)"
+	rows, err = database.DB.Query(r.Context(), query, accessoireIDs)
+	if err != nil {
+		http.Error(w, "Erreur lors de la récupération des accessoires", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var accessoires []models.Accessoire
+	for rows.Next() {
+		var a models.Accessoire
+		if err := rows.Scan(&a.ID, &a.Nom, &a.Image, &a.Prix); err != nil {
+			http.Error(w, "Erreur lors du scan des données", http.StatusInternalServerError)
+			return
+		}
+		accessoires = append(accessoires, a)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(accessoires)
 }
