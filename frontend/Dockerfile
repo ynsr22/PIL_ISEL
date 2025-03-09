@@ -22,7 +22,6 @@
     
     # Build de l'application (script "build" doit générer un dossier "dist")
     ENV NODE_ENV=production
-    RUN echo "VITE_API_URL=$VITE_API_URL" > .env
     RUN npm run build
     
     # -------------------------
